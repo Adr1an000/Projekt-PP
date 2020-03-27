@@ -1,5 +1,5 @@
-import ardrone
+import pyardrone
 
 
-ar = ardrone.ARDrone()
+ar = pyardrone.ARDrone()
 print("ttt")

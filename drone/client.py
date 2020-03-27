@@ -1,14 +1,14 @@
 
 import pygame
 
-import ardrone
+import pyardrone
 
 
 def main():
     pygame.init()
     W, H = 640, 480
     screen = pygame.display.set_mode((W, H))
-    drone = ardrone.ARDrone()
+    drone = pyardrone.ARDrone()
     drone.speed = 0.7
 
     clock = pygame.time.Clock()
