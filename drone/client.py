@@ -4,13 +4,16 @@ import pygame
 import ardrone
 
 
+
 def main():
     pygame.init()
-    W, H = 640, 480
+    W, H = 640, 360
     screen = pygame.display.set_mode((W, H))
     drone = ardrone.ARDrone()
+
     drone.speed = 0.7
 
+  #  drone.set_cam(screen)
     clock = pygame.time.Clock()
     running = True
     while running:
@@ -24,7 +27,7 @@ def main():
                     drone.reset()
                     running = False
                 # takeoff / land
-                elif event.key == pygame.K_RETURN:
+                elif event.key == pygame.K_q:
                     drone.takeoff()
                 elif event.key == pygame.K_SPACE:
                     drone.land()
@@ -75,14 +78,19 @@ def main():
                     drone.speed = 1.0"""
 
         try:
-            surface = pygame.image.fromstring(drone.image, (W, H), 'RGB')
+
+            im = drone.image
+            surface = pygame.image.fromstring(im.tobytes(), im.size, im.mode)
+            screen.blit(surface, (0, 0))
             # battery status
             hud_color = (255, 0, 0) if drone.navdata.get('drone_state', dict()).get('emergency_mask', 1) else (10, 10, 255)
-            bat = drone.navdata.get(0, dict()).get('battery', 0)
+            bat = drone.navdata.get('demo', dict()).get('battery', 0)
+            alt = drone.navdata.get('demo', dict()).get('altitude', 1)
             f = pygame.font.Font(None, 20)
             hud = f.render('Battery: %i%%' % bat, True, hud_color)
-            screen.blit(surface, (0, 0))
             screen.blit(hud, (10, 10))
+            altitude = f.render( 'altitude: %5.3f' %alt, True, hud_color)
+            screen.blit(altitude, (10, 30))
         except:
             pass
 
