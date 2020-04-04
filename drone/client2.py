@@ -1,86 +1,71 @@
 
 import pygame
 
-import ardrone
+from pyardrone import ARDrone
+from pyardrone.at import base, parameters
 
+from pyardrone.video import VideoClient
 
+import logging
 
 def main():
     pygame.init()
     W, H = 640, 360
     screen = pygame.display.set_mode((W, H))
-    drone = ardrone.ARDrone()
+    drone = ARDrone()
+    logging.basicConfig(level=logging.DEBUG)
+    client = VideoClient('192.168.1.1', 5555)
+    client.connect()
+    client.video_ready.wait()
+    speed = parameters.Float()
 
-    drone.speed = 0.7
-
+    drone.navdata_ready.wait()
   #  drone.set_cam(screen)
     clock = pygame.time.Clock()
     running = True
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                running = False 
+                running = False
             elif event.type == pygame.KEYUP:
                 drone.hover()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    drone.reset()
+
                     running = False
                 # takeoff / land
                 elif event.key == pygame.K_q:
                     drone.takeoff()
                 elif event.key == pygame.K_SPACE:
                     drone.land()
-                # emergency
+                    # emergency
                 elif event.key == pygame.K_BACKSPACE:
-                    drone.reset()
+                    drone.emergency()
                 # forward / backward
                 elif event.key == pygame.K_w:
-                    drone.move_forward()
+                    drone.move(forward=1)
                 elif event.key == pygame.K_s:
-                    drone.move_backward()
+                    drone.move(backward=1)
                 # left / right
                 elif event.key == pygame.K_a:
-                    drone.move_left()
+                    drone.move(left=1)
                 elif event.key == pygame.K_d:
-                    drone.move_right()
+                    drone.move(right=1)
                 # up / down
                 elif event.key == pygame.K_UP:
-                    drone.move_up()
+                    drone.move(up=1)
                 elif event.key == pygame.K_DOWN:
-                    drone.move_down()
+                    drone.move(down=1)
                 # turn left / turn right
                 elif event.key == pygame.K_LEFT:
-                    drone.turn_left()
+                    drone.move(cw=1)
                 elif event.key == pygame.K_RIGHT:
-                    drone.turn_right()
-
-                """"   # speed
-                elif event.key == pygame.K_1:
-                    drone.speed = 0.1
-                elif event.key == pygame.K_2:
-                    drone.speed = 0.2
-                elif event.key == pygame.K_3:
-                    drone.speed = 0.3
-                elif event.key == pygame.K_4:
-                    drone.speed = 0.4
-                elif event.key == pygame.K_5:
-                    drone.speed = 0.5
-                elif event.key == pygame.K_6:
-                    drone.speed = 0.6
-                elif event.key == pygame.K_7:
-                    drone.speed = 0.7
-                elif event.key == pygame.K_8:
-                    drone.speed = 0.8
-                elif event.key == pygame.K_9:
-                    drone.speed = 0.9
-                elif event.key == pygame.K_0:
-                    drone.speed = 1.0"""
+                    drone.move(ccw=1)
 
         try:
 
-            im = drone.image
-            surface = pygame.image.fromstring(im.tobytes(), im.size, im.mode)
+            im = client.frame
+            surface = pygame.image.fromstring(im.tobytes(), (360, 360),  im.mode)
             screen.blit(surface, (0, 0))
             # battery status
             hud_color = (255, 0, 0) if drone.navdata.get('drone_state', dict()).get('emergency_mask', 1) else (10, 10, 255)
@@ -99,8 +84,15 @@ def main():
         pygame.display.set_caption("FPS: %.2f" % clock.get_fps())
 
     print("Shutting down...")
-    drone.halt()
+    drone.close()
     print("Ok.")
+
+
+
+
+
+
+
 
 if __name__ == '__main__':
     main()
