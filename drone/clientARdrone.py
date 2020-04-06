@@ -1,12 +1,13 @@
 import pygame
 
-from drone.ardrone.libardrone import ARDrone
+from drone.ardrone.drone2.ardrone.ardrone import *
+from drone.ardrone.drone2.ardrone.ardrone.drone import ARDrone
 
 
 def main():
     pygame.init()
     W, H = 640, 360
-    screen = pygame.display.set_mode((W,H))
+    screen = pygame.display.set_mode((W, H))
     drone = ARDrone()
 
     drone.speed = 0.7
@@ -78,7 +79,7 @@ def main():
         try:
 
             im = drone.image
-            surface = pygame.image.fromstring(im.tobytes(), im.size, im.mode)
+            surface = pygame.image.fromstring(im, im.size, im.mode)
             screen.blit(surface, (0, 0))
             # battery status
             hud_color = (255, 0, 0) if drone.navdata.get('drone_state', dict()).get('emergency_mask', 1) else (10, 10, 255)
