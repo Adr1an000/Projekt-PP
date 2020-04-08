@@ -1,20 +1,20 @@
+""" KLIENT ARDRONE - sterowanie, obraz, bateria, wysokosc"""
+
 import pygame
-
-from drone.ardrone.drone2.ardrone.ardrone import *
-from drone.ardrone.drone2.ardrone.ardrone.drone import ARDrone
-
+import ardrone
 
 def main():
+
     pygame.init()
     W, H = 640, 360
     screen = pygame.display.set_mode((W, H))
-    drone = ARDrone()
-
+    drone = ardrone.ARDrone()
     drone.speed = 0.7
 
-  #  drone.set_cam(screen)
+    #  drone.set_cam(screen)
     clock = pygame.time.Clock()
     running = True
+
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -79,17 +79,20 @@ def main():
         try:
 
             im = drone.image
-            surface = pygame.image.fromstring(im, im.size, im.mode)
+            surface = pygame.image.fromstring(im.tobytes(), im.size, im.mode)
             screen.blit(surface, (0, 0))
-            # battery status
-            hud_color = (255, 0, 0) if drone.navdata.get('drone_state', dict()).get('emergency_mask', 1) else (10, 10, 255)
-            bat = drone.navdata.get('demo', dict()).get('battery', 0)
-            alt = drone.navdata.get('demo', dict()).get('altitude', 1)*1000
             f = pygame.font.Font(None, 20)
-            hud = f.render('Battery: %i%%' % bat, True, hud_color)
-            screen.blit(hud, (10, 10))
-            altitude = f.render( 'altitude: %5.3f' %alt, True, hud_color)
-            screen.blit(altitude, (10, 30))
+            # battery status
+            hud_color = (255, 0, 0) \
+                if drone.navdata.get('drone_state', dict()).get('emergency_mask', 1) \
+                else (10, 10, 255)
+            bat = drone.navdata.get('demo', dict()).get('battery', 0)
+            hud_bat = f.render('Battery: %i%%' % bat, True, hud_color)
+            screen.blit(hud_bat, (10, 10))
+            # altitude status
+            alt = drone.navdata.get('demo', dict()).get('altitude', 1)*1000
+            hud_alt = f.render( 'altitude: %5.3f' %alt, True, hud_color)
+            screen.blit(hud_alt, (10, 30))
         except:
             pass
 
@@ -100,6 +103,7 @@ def main():
     print("Shutting down...")
     drone.halt()
     print("Ok.")
+
 
 if __name__ == '__main__':
     main()
