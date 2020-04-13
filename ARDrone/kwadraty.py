@@ -22,7 +22,8 @@ def main():
                         pygame.time.delay(i)
                         screen.fill((0,0,0))
                         pygame.display.flip()
-                        pygame.time.delay(i*2)
+                        pygame.time.delay(i)
+                        pygame.display.set_caption("f: %.0f" % (i))
                 elif event.key == pygame.K_DOWN:
                     i = 70
                     for k in range(0, 40):
@@ -31,7 +32,9 @@ def main():
                         pygame.time.delay(i)
                         screen.fill((0, 0, 0))
                         pygame.display.flip()
-                        pygame.time.delay(i*2)
+                        pygame.time.delay(i)
+                        pygame.display.set_caption("f: %.0f" % (i))
+
                 elif event.key == pygame.K_LEFT:
                     i = 80
                     for k in range(0, 40):
@@ -40,7 +43,8 @@ def main():
                         pygame.time.delay(i)
                         screen.fill((0, 0, 0))
                         pygame.display.flip()
-                        pygame.time.delay(i*2)
+                        pygame.time.delay(i)
+                        pygame.display.set_caption("f: %.0f" % (i))
                 elif event.key == pygame.K_RIGHT:
                     i = 90
                     for k in range(0, 40):
@@ -49,9 +53,11 @@ def main():
                         pygame.time.delay(i)
                         screen.fill((0, 0, 0))
                         pygame.display.flip()
-                        pygame.time.delay(i*2)
+                        pygame.time.delay(i)
+                        pygame.display.set_caption("f: %.0f" % (i))
+
         clock.tick(50)
-        pygame.display.set_caption("FPS: %.2f" % clock.get_fps())
+
         # screen.blit(surface, (0, 0))
 
     print("Shutting down...")
