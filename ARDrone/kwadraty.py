@@ -17,7 +17,7 @@ def main():
                 if event.key == pygame.K_UP:
                     i = 60
                     for k in range (0, 40):
-                        pygame.draw.rect(screen, (200,20, 20), ( W/2-20, 20, 40, 40))
+                        pygame.draw.rect(screen, (200,20, 20), ( W/2-30, 20, 60, 60))
                         pygame.display.flip()
                         pygame.time.delay(i)
                         screen.fill((0,0,0))
@@ -27,7 +27,7 @@ def main():
                 elif event.key == pygame.K_DOWN:
                     i = 70
                     for k in range(0, 40):
-                        pygame.draw.rect(screen, (200, 20, 20), (W/2-20, H-60, 40, 40))
+                        pygame.draw.rect(screen, (200, 20, 20), (W/2-30, H-80, 60, 60))
                         pygame.display.flip()
                         pygame.time.delay(i)
                         screen.fill((0, 0, 0))
@@ -38,7 +38,7 @@ def main():
                 elif event.key == pygame.K_LEFT:
                     i = 80
                     for k in range(0, 40):
-                        pygame.draw.rect(screen, (200, 20, 20), (20, H/2-20, 40, 40))
+                        pygame.draw.rect(screen, (200, 20, 20), (20, H/2-30, 60, 60))
                         pygame.display.flip()
                         pygame.time.delay(i)
                         screen.fill((0, 0, 0))
@@ -48,7 +48,7 @@ def main():
                 elif event.key == pygame.K_RIGHT:
                     i = 90
                     for k in range(0, 40):
-                        pygame.draw.rect(screen, (200, 20, 20), (W-60, H/2-20, 40, 40))
+                        pygame.draw.rect(screen, (200, 20, 20), (W-80, H/2-30, 60, 60))
                         pygame.display.flip()
                         pygame.time.delay(i)
                         screen.fill((0, 0, 0))
