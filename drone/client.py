@@ -11,9 +11,7 @@ def main():
     drone = ardrone.ARDrone()
 
     drone.speed = 0.7
-    v = Video();
-  #  drone.set_cam(screen)
-
+    v = Video()
     running = True
     while running:
         v.video()
@@ -25,7 +23,7 @@ def main():
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_DELETE:
                     running = False
-                    pygame.quit();
+                    pygame.quit()
                     quit(0)
                 elif event.key == pygame.K_ESCAPE:
                     drone.reset()
