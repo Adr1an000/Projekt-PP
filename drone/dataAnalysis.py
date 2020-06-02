@@ -4,6 +4,9 @@ from scipy.fft import fft
 from scipy.fftpack import fftfreq
 from datetime import datetime
 import numpy as np
+import matplotlib
+matplotlib.use('agg')
+import matplotlib.pyplot as plt
 
 def sum2d(array):
     sum = 0
@@ -32,7 +35,7 @@ def ambientFreq(signal, frequencies, step):
     i = step
     length = len(signal)
     progress = 0
-    date = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")
+    date = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
     print(f"{date} {round(progress * 100)}% done")
     while i < length:
         if sum2d(frequencies[i-step:i]) == 0:
@@ -40,7 +43,7 @@ def ambientFreq(signal, frequencies, step):
             count += 1
         if i / length > progress:
             progress += 0.1
-            date = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")
+            date = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
             print(f"{date} {round(progress * 100)}% done")
         i += step
     return average / count
@@ -63,7 +66,7 @@ def nonZeroFreqTest(signal, frequencies, step):
 if __name__ == "__main__":
     matrix = loadmat('dane.mat')['matrix']
     step = 2000 #przedzial czasowy do fft
-    start = 5000 #od ktorych probek zaczynamy analize
+    start = 5000 #od jakiego pkt w czasie zaczyna sie analiza
     frequency = 1000 #czestotliwosc sygnalu
     allProbes = matrix[:, 5:21] #wycinek macierzy zawierajcy sygnal z wszystkich elektrod
     frequencies = matrix[:, 26:28] #wycinek maciery zawierajacy informacje czy wystapily czestotliwosci
@@ -88,10 +91,6 @@ if __name__ == "__main__":
     y1 = ambientFreqPow1[minIndex:maxIndex]
     y2 = nonZeroFreqTest(carSignal1[start:], frequencies[start:], step)[minIndex:maxIndex]
     x = freqValues[minIndex:maxIndex]
-
-    import matplotlib
-    matplotlib.use('agg')
-    import matplotlib.pyplot as plt
 
     plt.plot(x, y1, 'r')
     plt.plot(x, y2, 'g')
