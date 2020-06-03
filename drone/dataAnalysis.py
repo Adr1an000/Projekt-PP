@@ -71,7 +71,7 @@ if __name__ == "__main__":
     frequency = 1000 #czestotliwosc sygnalu
     allProbes = matrix[:, 5:21] #wycinek macierzy zawierajcy sygnal z wszystkich elektrod
     frequencies = matrix[:, 26:28] #wycinek maciery zawierajacy informacje czy wystapily czestotliwosci
-    signal1 = matrix[:, 12] #sygnal z jednej elektrody potylicznej
+    signal1 = matrix[:, 11] #sygnal z jednej elektrody potylicznej
 
     carSignal1 = list(map(car, signal1, allProbes))
     ##  ambientFreqPow1 = ambientFreq(carSignal1[start:], frequencies[start:], step)
