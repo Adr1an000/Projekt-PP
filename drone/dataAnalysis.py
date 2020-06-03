@@ -1,6 +1,6 @@
 from mat73 import loadmat
 from functools import reduce
-from scipy.fft import fft
+from scipy.fftpack import fft
 from scipy.fftpack import fftfreq
 from datetime import datetime
 import numpy as np
@@ -58,26 +58,29 @@ def nonZeroFreqTest(signal, frequencies, step):
     i = step
     length = len(signal)
     while i < length:
-        if sum(frequencies[i-step:i, 1]) >= 0.9 * step:
+        if sum(frequencies[i-step:i, 1]) >= 0.90 * step:
             return np.abs(fft(signal[i-step:i]))
         i += 1
     return None
 
 if __name__ == "__main__":
     matrix = loadmat('dane.mat')['matrix']
+    #print(matrix)
     step = 2000 #przedzial czasowy do fft
     start = 5000 #od jakiego pkt w czasie zaczyna sie analiza
     frequency = 1000 #czestotliwosc sygnalu
     allProbes = matrix[:, 5:21] #wycinek macierzy zawierajcy sygnal z wszystkich elektrod
     frequencies = matrix[:, 26:28] #wycinek maciery zawierajacy informacje czy wystapily czestotliwosci
-    signal1 = matrix[:, 11] #sygnal z jednej elektrody potylicznej
+    signal1 = matrix[:, 12] #sygnal z jednej elektrody potylicznej
 
     carSignal1 = list(map(car, signal1, allProbes))
+    ##  ambientFreqPow1 = ambientFreq(carSignal1[start:], frequencies[start:], step)
     ambientFreqPow1 = ambientFreq(carSignal1[start:], frequencies[start:], step)
-    freqValues = fftfreq(step, 1 / frequency)
+    T = 1.0 / frequency
+    freqValues = fftfreq(step, T)
 
     N = step
-    T = 1.0 / frequency
+
     minFreq = 8
     maxFreq = 20
 
@@ -91,9 +94,29 @@ if __name__ == "__main__":
     y1 = ambientFreqPow1[minIndex:maxIndex]
     y2 = nonZeroFreqTest(carSignal1[start:], frequencies[start:], step)[minIndex:maxIndex]
     x = freqValues[minIndex:maxIndex]
-
+    ysr = np.subtract(y2, y1)
     plt.plot(x, y1, 'r')
     plt.plot(x, y2, 'g')
+    plt.plot(x, ysr, 'b')
+    xmax =  np.argmax(ysr)
+    xintmin  = xmax -1
+    xintmax  = xmax +1
+    sumint =0
+    #liczenie całki od 15.5 do 16.5
+    for i in range(xintmin, xintmax):
+        sumint += (ysr[i+1]+ysr[i])*(x[i+1]-x[i])
+    sumint/=2
+    #print(sumint)
+    #normalizacja wykresu, danych
+    ynorm = np.zeros(len(ysr))
+    mnoznik = 1.0/np.max(ysr)
+    #print(np.max(ysr))
+    for i in range(xintmin, xintmax+1):
+        ynorm[i] = mnoznik*ysr[i]
+    #plt.plot(x, ynorm, 'b')
+    print(ynorm)
+
+
     plt.grid()
     plt.savefig("test")
 
