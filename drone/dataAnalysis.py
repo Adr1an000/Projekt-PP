@@ -63,6 +63,27 @@ def nonZeroFreqTest(signal, frequencies, step):
         i += 1
     return None
 
+def normalize( y):
+    ynorm = np.zeros(len(ysr))
+    mnoznik = 1.0 / np.max(y)
+    for i in y :
+        if y[i] < 0:
+            ynorm[i] = 0
+        else:
+            ynorm[i] = mnoznik * y[i]
+    return ynorm
+def integral(ynorm, x):
+    xmax = np.argmax(ynorm)
+    xintmin = xmax - 1
+    xintmax = xmax + 1
+    sumint = 0
+    # liczenie całki od 15.5 do 16.5
+    for i in range(xintmin, xintmax):
+        sumint += (ynorm[i + 1] + ynorm[i]) * (x[i + 1] - x[i])
+    sumint /= 2
+    return sumint
+
+
 if __name__ == "__main__":
     matrix = loadmat('dane.mat')['matrix']
     #print(matrix)
@@ -95,26 +116,13 @@ if __name__ == "__main__":
     y2 = nonZeroFreqTest(carSignal1[start:], frequencies[start:], step)[minIndex:maxIndex]
     x = freqValues[minIndex:maxIndex]
     ysr = np.subtract(y2, y1)
-    plt.plot(x, y1, 'r')
-    plt.plot(x, y2, 'g')
-    plt.plot(x, ysr, 'b')
-    xmax =  np.argmax(ysr)
-    xintmin  = xmax -1
-    xintmax  = xmax +1
-    sumint =0
-    #liczenie całki od 15.5 do 16.5
-    for i in range(xintmin, xintmax):
-        sumint += (ysr[i+1]+ysr[i])*(x[i+1]-x[i])
-    sumint/=2
-    #print(sumint)
+    #plt.plot(x, y1, 'r')
+    #plt.plot(x, y2, 'g')
+    #plt.plot(x, ysr, 'b')
+
     #normalizacja wykresu, danych
-    ynorm = np.zeros(len(ysr))
-    mnoznik = 1.0/np.max(ysr)
-    #print(np.max(ysr))
-    for i in range(xintmin, xintmax+1):
-        ynorm[i] = mnoznik*ysr[i]
-    #plt.plot(x, ynorm, 'b')
-    print(ynorm)
+    ynorm = normalize(ysr)
+    integral = integral(ynorm, x)
 
 
     plt.grid()
