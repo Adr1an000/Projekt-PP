@@ -2,16 +2,21 @@
 import pygame
 import ardrone
 
+from drone import gui
 from drone.video import Video
 
 
-def main():
+def main(win):
     pygame.init()
 
     drone = ardrone.ARDrone()
-
+    #return -1
+    if drone == None:
+        print("not connect to drone")
+        return -1
+        gui.main()
     drone.speed = 0.7
-    v = Video()
+    v = Video(screen = win)
     running = True
     while running:
         v.video()
@@ -23,8 +28,8 @@ def main():
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_DELETE:
                     running = False
-                    pygame.quit()
-                    quit(0)
+                    #pygame.quit()
+                    #quit(0)
                 elif event.key == pygame.K_ESCAPE:
                     drone.reset()
                     running = False
@@ -63,8 +68,9 @@ def main():
 
 
     print("Shutting down...")
-    drone.halt()
+    #drone.halt()
     print("Ok.")
+    #gui.main()
 
 if __name__ == '__main__':
-    main()
+    main(win=pygame.display.set_mode((800, 600)) )
