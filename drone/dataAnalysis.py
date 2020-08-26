@@ -127,7 +127,7 @@ def createModel(imputSize):
     model.add(Dense(imputSize, activation='sigmoid'))
     model.add(Dense(32, activation='sigmoid'))
     model.add(Dense(32, activation='sigmoid'))
-    model.add(Dense(4, activation='softmax'))
+    model.add(Dense(5, activation='softmax'))
     adam = tf.keras.optimizers.Adam(lr=0.001)
     model.compile(loss="mean_squared_error", optimizer=adam, metrics=['accuracy'])
     return model
@@ -154,7 +154,7 @@ def tt(isFrequencies, step, s, freq):
         return 2
     if np.sum(freq == 2) > step * 0.5:
         return 3
-    return 0
+    return 4
 # def createData(inputX, i):
 
 
