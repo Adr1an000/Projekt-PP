@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import random
 
 STEP = 2000  # przedzial czasowy do fft
-START = 5000  # od jakiego pkt w czasie zaczyna sie analiza
+START = 1000  # od jakiego pkt w czasie zaczyna sie analiza
 FREQUENCY = 1000  # czestotliwosc sygnalu
 T = 1.0 / FREQUENCY
 
@@ -34,7 +34,7 @@ def car(sample, all_samples):
     sample - float reprezentujacy wartosc z jednej elektrody w danym punkcie czasu
     all_samples - lista zawierajaca wartosci wszystkich elektrod w danym punkcie czasu
     """
-    return sample - all_samples.mean()
+    return sample -  all_samples.mean()
 
 
 def ambient_freq(signal, frequencies, step):
@@ -107,7 +107,8 @@ def frequency_range(min_freq, max_freq, freq_values):
 
 def tt(step, s, freq, is_freq):
     s += step
-    if np.sum(is_freq == 0) > step * .7:
+
+    if np.sum(is_freq == 0) < step * .7:
         return 0
     if np.sum(freq == 0) > step * .7:
         return 1
@@ -115,7 +116,24 @@ def tt(step, s, freq, is_freq):
         return 2
     if np.sum(freq == 2) > step * .7:
         return 3
-    return 4
+    return 0
+
+
+def tt2(step, s, freq, is_freq):
+    s += step
+
+    if np.sum(is_freq == 0) < step * .7:
+        return np.array(0)
+
+    output = np.array()
+
+    if np.sum(freq == 0) > step * .7:
+        return
+    if np.sum(freq == 1) > step * .7:
+        return 2
+    if np.sum(freq == 2) > step * .7:
+        return 3
+    return 0
 
 
 def prepare_data():
@@ -150,16 +168,17 @@ def prepare_data():
             y1 = y1[minIndex:maxIndex]
             y2 = y2[minIndex:maxIndex]
             y_avg = np.add(y1, y2)
+            #y_avg = np.concatenate((y1 , y2))
             y_avg /= 2
-            ysr_avg = np.subtract(y_avg, y_avg_background)
+            ysr_avg = np.subtract(y1, y_avg_background)
             ysr_avg = normalize(ysr_avg)
             #ysr_avg = normalize(y_avg)
 
-            fig, ax = plt.subplots()
-            ax.plot(x, ysr_avg)
-            ax.set(title=str(freq[s]))
-            ax.grid()
-            plt.show()
+            #fig, ax = plt.subplots()
+            #ax.plot(x, ysr_avg)
+            #ax.set(title=str(freq[s]))
+            #ax.grid()
+            #plt.show()
 
             #fig.savefig("test.png")
 
@@ -203,8 +222,9 @@ def create_model(input_size, dropout=0.1):
     model.add(tf.keras.layers.Dense(48, activation='sigmoid'))
     model.add(tf.keras.layers.Dropout(dropout))
     model.add(tf.keras.layers.Dense(12, activation='sigmoid'))
-    model.add(tf.keras.layers.Dense(5))
-    model.compile(loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+    model.add(tf.keras.layers.Dense(4))
+    #model.compile(loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+    model.compile(loss='categorical_crossentropy',
                   optimizer=tf.keras.optimizers.Adam(lr=0.0001),
                   metrics=['accuracy'])
     return model
@@ -242,16 +262,17 @@ def main():
     x_data, y_data = prepare_data()
     x_data, y_data = shuffle_data(x_data, y_data)
     #save_data(x_data, y_data)
-
     # Split data
     x_train, y_train = equal_data(x_data[: int(len(x_data) * .7)], y_data[: int(len(y_data) * .7)])
 
     x_valid, y_valid = equal_data(x_data[int(len(x_data) * .7):], y_data[int(len(y_data) * .7):])
     x_test, y_test = x_data[-10:], y_data[-10:]
+    y_train = tf.keras.utils.to_categorical(y_train)
+    y_valid = tf.keras.utils.to_categorical(y_valid)
 
     # Create, train and save NN model
-    model = create_model(len(x_data[0]), dropout=0)
-    model.fit(x_train, y_train, epochs=1000, batch_size=1)
+    model = create_model(len(x_data[0]), dropout=0.00)
+    model.fit(x_train, y_train, epochs=500, batch_size=1)
     #save_model(model)
     # Or load model
     # model = load_model()
