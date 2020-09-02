@@ -267,8 +267,8 @@ def main():
 
     x_valid, y_valid = equal_data(x_data[int(len(x_data) * .7):], y_data[int(len(y_data) * .7):])
     x_test, y_test = x_data[-10:], y_data[-10:]
-    y_train = tf.keras.utils.to_categorical(y_train)
-    y_valid = tf.keras.utils.to_categorical(y_valid)
+    #y_train = tf.keras.utils.to_categorical(y_train)
+    #y_valid = tf.keras.utils.to_categorical(y_valid)
 
     # Create, train and save NN model
     model = create_model(len(x_data[0]), dropout=0.00)
