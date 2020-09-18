@@ -1,17 +1,15 @@
 from mat73 import loadmat
-#from scipy.fftpack import fft
 import numpy.fft as fft
-#from scipy.fftpack import fftfreq
-#import numpy.fft. import fftfreq
 from datetime import datetime
 import numpy as np
 import tensorflow as tf
 import os.path
 import matplotlib.pyplot as plt
 import random
+from tensorflow.python.keras import losses
 
 STEP = 2000  # przedzial czasowy do fft
-START = 5000  # od jakiego pkt w czasie zaczyna sie analiza
+START = 5050  # od jakiego pkt w czasie zaczyna sie analiza
 FREQUENCY = 1000  # czestotliwosc sygnalu
 T = 1.0 / FREQUENCY
 
@@ -29,12 +27,7 @@ def sum2d(array):
             sum_2d += array[row][col]
     return sum_2d
 
-def car(sample, all_samples):
-    """
-    sample - float reprezentujacy wartosc z jednej elektrody w danym punkcie czasu
-    all_samples - lista zawierajaca wartosci wszystkich elektrod w danym punkcie czasu
-    """
-    return sample - all_samples.mean()
+
 
 def ambient_freq(signal, frequencies, step):
     """
@@ -81,6 +74,13 @@ def non_zero_freq_test(signal, frequencies, step, s):
             return np.abs(fft.fft(signal[i - step:i])), i
         i += step
     return None, None
+
+def car(sample, all_samples):
+    """
+    sample - float reprezentujacy wartosc z jednej elektrody w danym punkcie czasu
+    all_samples - lista zawierajaca wartosci wszystkich elektrod w danym punkcie czasu
+    """
+    return sample - all_samples.mean()
 
 def normalize(y):
     y_norm = np.zeros(len(y))
@@ -214,11 +214,11 @@ def create_model(input_size, dropout=0.1):
 
 
 def save_model(model, path='saved_model/'):
-    model.save(path + 'model')
+    model.save(path + 'model420.h5')
 
 
 def load_model(path='saved_model/'):
-    return tf.keras.models.load_model(path + 'model')
+    return tf.keras.models.load_model(path + 'model2')
 
 def equal_data(x_data, y_data):
 
@@ -246,13 +246,12 @@ def main():
     x_data, y_data = delete_null_plot(x_data, y_data)
     x_data, y_data = equal_data(x_data, y_data)
     x_data, y_data = shuffle_data(x_data, y_data)
-    #print(f"{y_data.size}")
 
     #x_data, y_data = sort_by_number(x_data, y_data)
 
     freq_values = fft.fftfreq(STEP, T)
     (minIndex, maxIndex) = frequency_range(8, 20, freq_values)
-    x = freq_values[minIndex:maxIndex]
+    #x = freq_values[minIndex:maxIndex]
     #ii = 0
     '''
     for i in range(y_data.size):
@@ -275,11 +274,11 @@ def main():
     #y_valid = tf.keras.utils.to_categorical(y_valid)
 
     # Create, train and save NN model
-    model = create_model(len(x_data[0]), dropout=0.6)
-    model.fit(x_train, y_train, epochs=900, batch_size=1)
+    #model = create_model(len(x_data[0]), dropout=0.6)
+    #model.fit(x_train, y_train, epochs=900, batch_size=1)
     #save_model(model)
     # Or load model
-    # model = load_model()
+    model = load_model()
     # Test model
     model.evaluate(x_valid, y_valid, verbose=1)
     pre = model.predict(x_test)
