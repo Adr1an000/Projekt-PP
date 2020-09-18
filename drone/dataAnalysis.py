@@ -147,14 +147,16 @@ def tt(isFrequencies, step, s, freq):
     s += step
 
     # if sum(isFrequencies[s - step:s, 0]) / step < 0.1:
-    #return 0
-    if np.sum(freq==0) > step*0.5:
+    # return 0
+    if np.sum(freq == 0) > step * 0.5:
         return 1
-    if np.sum(freq ==1) > step * 0.5:
+    if np.sum(freq == 1) > step * 0.5:
         return 2
     if np.sum(freq == 2) > step * 0.5:
         return 3
     return 4
+
+
 # def createData(inputX, i):
 
 
@@ -169,7 +171,7 @@ if __name__ == "__main__":
     frequencies = matrix[:, 26:28]  # wycinek maciery zawierajacy informacje czy wystapily czestotliwosci
     signal1 = matrix[:, 11]  # sygnal z jednej elektrody potylicznej
     signal2 = matrix[:, 12]  # sygnal z jednej elektrody potylicznej
-    freq = matrix[:, 21] #jaka czestotliwosc jest wyswietlana
+    freq = matrix[:, 21]  # jaka czestotliwosc jest wyswietlana
     carSignal1 = list(map(car, signal1, allProbes))
     carSignal2 = list(map(car, signal2, allProbes))
     T = 1.0 / frequency
@@ -214,7 +216,7 @@ if __name__ == "__main__":
     x_data = np.array(x_data)
     y_data = np.array(y_data)
     model = createModel(len(x_data[0]))
-    model.fit(x_data[:int(len(x_data)*0.90)], y_data[:int(len(x_data)*0.90)], epochs=10, batch_size=4)
-    model.evaluate(x_data[int(len(x_data)*0.9):], y_data[int(len(x_data)*0.9):], verbose=2)
+    model.fit(x_data[:int(len(x_data) * 0.90)], y_data[:int(len(x_data) * 0.90)], epochs=10, batch_size=4)
+    model.evaluate(x_data[int(len(x_data) * 0.9):], y_data[int(len(x_data) * 0.9):], verbose=2)
     pre = model.predict(x_data)
     pass

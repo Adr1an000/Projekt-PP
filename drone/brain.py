@@ -214,7 +214,7 @@ def create_model(input_size, dropout=0.1):
 
 
 def save_model(model, path='saved_model/'):
-    model.save(path + 'model')
+    model.save(path + 'model2')
 
 
 def load_model(path='saved_model/'):
@@ -277,7 +277,7 @@ def main():
     # Create, train and save NN model
     model = create_model(len(x_data[0]), dropout=0.6)
     model.fit(x_train, y_train, epochs=900, batch_size=1)
-    #save_model(model)
+    save_model(model)
     # Or load model
     # model = load_model()
     # Test model
