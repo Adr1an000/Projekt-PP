@@ -66,14 +66,13 @@ def non_zero_freq_test(signal, frequencies, step, s):
     """
     i = s + step if s is not None else step
     length = len(signal)
-    (minIndex, maxIndex) = frequency_range(8, 20, fft.fftfreq(STEP, T))
-    x = fft.fftfreq(STEP, T)
-    x = x[minIndex:maxIndex]
     while i < length:
         if sum(frequencies[i - step:i]) >= 0.8 * step:
-            return np.abs(fft.fft(signal[i - step:i])), i
+            return np.abs(fft.fft(signal[i - step:i])), i, True
+        elif sum(frequencies[i - step:i]) < 0.2 * step:
+            return np.abs(fft.fft(signal[i - step:i])), i, False
         i += step
-    return None, None
+    return None, None, None
 
 def car(sample, all_samples):
     """
@@ -104,14 +103,14 @@ def frequency_range(min_freq, max_freq, freq_values):
         max_index += 1
     return min_index, max_index
 
-def tt(step, freq):
+def calculate_output(step, freq):
     if np.sum(freq == 0) > step * .7:
         return 0
     if np.sum(freq == 1) > step * .7:
         return 1
     if np.sum(freq == 2) > step * .7:
         return 2
-    return 3
+    return 4
 
 def nullFilter(temp):
     if np.max(temp[0]) == 0:
@@ -140,33 +139,41 @@ def prepare_data():
     x = freq_values[minIndex:maxIndex]
     s = START
 
-    ambient_freq_pow1_0 = ambient_freq(car_signal1[START:], frequencies[START:], STEP)
-    ambient_freq_pow2_0 = ambient_freq(car_signal2[START:], frequencies[START:], STEP)
+    #ambient_freq_pow1_0 = ambient_freq(car_signal1[START:], frequencies[START:], STEP)
+    #ambient_freq_pow2_0 = ambient_freq(car_signal2[START:], frequencies[START:], STEP)
 
-    y_background1 = ambient_freq_pow1_0[minIndex:maxIndex]
-    y_background2 = ambient_freq_pow2_0[minIndex:maxIndex]
-    y_avg_background_0 = (y_background1 + y_background2) / 2
+    #y_background1 = ambient_freq_pow1_0[minIndex:maxIndex]
+    #y_background2 = ambient_freq_pow2_0[minIndex:maxIndex]
+    #y_avg_background_0 = (y_background1 + y_background2) / 2
     x_data = list()
     y_data = list()
+    isFreq = True
     #y_avg_background = list()
     while s is not None:
 
-        y1, s = non_zero_freq_test(car_signal1[s:], frequencies[s:], STEP, s)
-        y2, _ = non_zero_freq_test(car_signal2[s:], frequencies[s:], STEP, s)
+        y1, s, _ = non_zero_freq_test(car_signal1[s:], frequencies[s:], STEP, s)
+        y2, _, isFreq = non_zero_freq_test(car_signal2[s:], frequencies[s:], STEP, s)
 
         if y1 is not None and y2 is not None:
+            if isFreq:
+                ambient_freq_pow1 = ambient_freq(car_signal1[s-4*STEP:s], frequencies[s-4*STEP:s], STEP)
+                ambient_freq_pow2 = ambient_freq(car_signal2[s-4*STEP:s], frequencies[s-4*STEP:s], STEP)
+                y_background1 = ambient_freq_pow1[minIndex:maxIndex]
+                y_background2 = ambient_freq_pow2[minIndex:maxIndex]
+                y1 = y1[minIndex:maxIndex] - y_background1
+                y2 = y2[minIndex:maxIndex] - y_background2
+                y1 = normalize(y1)
+                y2 = normalize(y2)
+                y_avg = np.append(y1.ravel(), y2.ravel())
+                x_data.append(y_avg)
+                y_data.append(calculate_output(STEP, freq[s:s + STEP]))
+            else:
+                y1 = normalize(y1[minIndex:maxIndex])
+                y2 = normalize(y2[minIndex:maxIndex])
+                y_avg = np.append(y1.ravel(), y2.ravel())
+                x_data.append(y_avg)
+                y_data.append(3)
 
-            ambient_freq_pow1 = ambient_freq(car_signal1[s-4*STEP:s], frequencies[s-4*STEP:s], STEP)
-            ambient_freq_pow2 = ambient_freq(car_signal2[s-4*STEP:s], frequencies[s-4*STEP:s], STEP)
-            y_background1 = ambient_freq_pow1[minIndex:maxIndex]
-            y_background2 = ambient_freq_pow2[minIndex:maxIndex]
-            y1 = y1[minIndex:maxIndex] - y_background1
-            y2 = y2[minIndex:maxIndex] - y_background2
-            y1 = normalize(y1)
-            y2 = normalize(y2)
-            y_avg = np.append(y1.ravel(), y2.ravel())
-            x_data.append(y_avg)
-            y_data.append(tt(STEP, freq[s:s + STEP]))
     x_data = np.array(x_data)
     y_data = np.array(y_data)
 
@@ -205,7 +212,7 @@ def create_model(input_size, dropout=0.1):
     model.add(tf.keras.layers.Dense(48, activation='sigmoid'))
     model.add(tf.keras.layers.Dropout(dropout))
     model.add(tf.keras.layers.Dense(12, activation='sigmoid'))
-    model.add(tf.keras.layers.Dense(4))
+    model.add(tf.keras.layers.Dense(5))
     model.compile(loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
     #model.compile(loss='categorical_crossentropy',
                   optimizer=tf.keras.optimizers.Adam(lr=0.0001),
@@ -214,11 +221,11 @@ def create_model(input_size, dropout=0.1):
 
 
 def save_model(model, path='saved_model/'):
-    model.save(path + 'model420.h5')
+    model.save(path + 'model7.h5')
 
 
 def load_model(path='saved_model/'):
-    return tf.keras.models.load_model(path + 'model2')
+    return tf.keras.models.load_model(path + 'model7.h5')
 
 def equal_data(x_data, y_data):
 
@@ -226,10 +233,12 @@ def equal_data(x_data, y_data):
     counted_y = [sum(y_data == 0),
                  sum(y_data == 1),
                  sum(y_data == 2)]
+                 #sum(y_data == 3)]
     print(f"{counted_y}")
     more_than_min_y = [sum(y_data == 0) - min(counted_y) / 2,
                        sum(y_data == 1) - min(counted_y) / 2,
                        sum(y_data == 2) - min(counted_y) / 2]
+                       #sum(y_data == 3) - min(counted_y) / 2]
 
     for i, lst in enumerate(more_than_min_y):
         for j in range(int(lst)):
@@ -244,6 +253,7 @@ def main():
     # if x_data is None or y_data is None:
     x_data, y_data = prepare_data()
     x_data, y_data = delete_null_plot(x_data, y_data)
+    #save_data(x_data, y_data)
     x_data, y_data = equal_data(x_data, y_data)
     x_data, y_data = shuffle_data(x_data, y_data)
 
@@ -251,18 +261,15 @@ def main():
 
     freq_values = fft.fftfreq(STEP, T)
     (minIndex, maxIndex) = frequency_range(8, 20, freq_values)
-    #x = freq_values[minIndex:maxIndex]
+    x = freq_values[minIndex:maxIndex]
     #ii = 0
-    '''
+
     for i in range(y_data.size):
         fig, ax = plt.subplots(2)
         ax[0].plot(x, x_data[i][:len(x)])
         ax[1].plot(x, x_data[i][len(x):])
         ax[0].set(title=str(y_data[i]))
         plt.show()
-    '''
-
-    #save_data(x_data, y_data)
     # Split data
     x_train, y_train = x_data[: int(len(x_data) * 0.8)], y_data[: int(len(y_data) * 0.8)]
 
@@ -274,11 +281,11 @@ def main():
     #y_valid = tf.keras.utils.to_categorical(y_valid)
 
     # Create, train and save NN model
-    #model = create_model(len(x_data[0]), dropout=0.6)
-    #model.fit(x_train, y_train, epochs=900, batch_size=1)
-    #save_model(model)
+    model = create_model(len(x_data[0]), dropout=0.55)
+    model.fit(x_train, y_train, epochs=900, batch_size=1)
+    save_model(model)
     # Or load model
-    model = load_model()
+    #model = load_model()
     # Test model
     model.evaluate(x_valid, y_valid, verbose=1)
     pre = model.predict(x_test)

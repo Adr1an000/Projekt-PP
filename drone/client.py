@@ -48,15 +48,15 @@ def main(win):
         elif k[pygame.K_BACKSPACE]:
              drone.reset()
              # forward / backward
-        elif k[pygame.K_w] or pre==0:
+        elif k[pygame.K_w] or pre==1:
              drone.move_forward()
 
         elif k[pygame.K_s]:
              drone.move_backward()
              # left / right
-        elif k[pygame.K_a] or pre == 1:
+        elif k[pygame.K_a] or pre == 2:
              drone.move_left()
-        elif k[pygame.K_d] or pre == 2:
+        elif k[pygame.K_d] or pre == 3:
              drone.move_right()
         # up / down
         elif k[pygame.K_UP]:
