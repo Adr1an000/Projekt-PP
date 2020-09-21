@@ -4,9 +4,8 @@ import ardrone
 
 from drone import gui
 from drone.video import Video
-from drone.brain import load_model, load_data
+from drone.brain import load_model
 import drone.dataSource as dataSource
-import tensorflow
 import numpy as np
 
 
@@ -15,7 +14,6 @@ def main(win):
     datasource = dataSource.DataSource()
     model = load_model()
     drone = ardrone.ARDrone()
-    #return -1
     if drone == None:
         print("not connect to drone")
         return -1
@@ -25,7 +23,7 @@ def main(win):
     running = True
     while running:
         temp = datasource.readData()
-        pre =  np.argmax(model.predict(temp))
+        pre = np.argmax(model.predict(temp))
         print(pre)
         k = pygame.key.get_pressed()
         v.video()
@@ -34,7 +32,14 @@ def main(win):
                 running = False 
             elif event.type == pygame.KEYUP:
                 drone.hover()
-
+            elif event.type == pygame.key.get_pressed():
+                if event.type == pygame.K_t:
+                    if pre == 1:
+                        drone.move_forward()
+                    elif pre == 2:
+                        drone.turn_left()
+                    elif pre == 3:
+                        drone.turn_right()
         if k[pygame.K_DELETE]:
             running = False
         elif k[pygame.K_ESCAPE]:
@@ -48,15 +53,15 @@ def main(win):
         elif k[pygame.K_BACKSPACE]:
              drone.reset()
              # forward / backward
-        elif k[pygame.K_w] or pre==1:
+        elif k[pygame.K_w] :
              drone.move_forward()
 
         elif k[pygame.K_s]:
              drone.move_backward()
              # left / right
-        elif k[pygame.K_a] or pre == 2:
+        elif k[pygame.K_a]:
              drone.move_left()
-        elif k[pygame.K_d] or pre == 3:
+        elif k[pygame.K_d]:
              drone.move_right()
         # up / down
         elif k[pygame.K_UP]:
@@ -71,9 +76,8 @@ def main(win):
 
 
     print("Shutting down...")
-    #drone.halt()
+    drone.halt()
     print("Ok.")
-    #gui.main()
 
 if __name__ == '__main__':
     main(win=pygame.display.set_mode((800, 600)) )

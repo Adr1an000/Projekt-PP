@@ -17,7 +17,6 @@ def main(win):
                     running = False
                 elif event.key == pygame.K_UP:
                     v.direction = 1
-
                 elif event.key == pygame.K_RIGHT:
                     v.direction = 2
                 # turn left / turn right

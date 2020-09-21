@@ -1,7 +1,7 @@
 import pygame
 from ardrone import drone
 
-from drone.temp import Temp
+from drone.squares import Squares
 
 
 class Video:
@@ -11,14 +11,14 @@ class Video:
         self.W, self.H = pygame.display.get_surface().get_size()
         self.clock = pygame.time.Clock()
         self.screen = screen
-        self.begin_screen_W = (self.W- self.W_drone) / 2
+        self.begin_screen_W = (self.W - self.W_drone) / 2
         self.begin_screen_H = (self.H - self.H_drone) / 2
         self.rectangle_H = 60
         self.rectangle_W = 60
-        self.up = Temp(self.screen, 8, (100, 100, 100), 0.5, ((self.W-self.rectangle_W)/2, self.rectangle_H/2, self.rectangle_W, self.rectangle_H))
-        self.down = Temp(self.screen, 10, (100, 100, 100), 0.5, ((self.W-self.rectangle_W)/2, self.H-1.5*self.rectangle_H, self.rectangle_W, self.rectangle_H))
-        self.left = Temp(self.screen, 12, (100, 100, 100), 0.5, (self.rectangle_W/2, (self.H-self.rectangle_H)/2, self.rectangle_W, self.rectangle_H))
-        self.right = Temp(self.screen, 15, (100, 100, 100), 0.5, (self.W-1.5*self.rectangle_W, (self.H-self.rectangle_H)/2, self.rectangle_W, self.rectangle_H))
+        self.up = Squares(self.screen, 8, (255, 0, 0), 0.5, ((self.W - self.rectangle_W) / 2, self.rectangle_H / 2, self.rectangle_W, self.rectangle_H))
+        self.down = Squares(self.screen, 10, (255, 0, 0), 0.5, ((self.W - self.rectangle_W) / 2, self.H - 1.5 * self.rectangle_H, self.rectangle_W, self.rectangle_H))
+        self.left = Squares(self.screen, 12, (255, 0, 0), 0.5, (self.rectangle_W / 2, (self.H - self.rectangle_H) / 2, self.rectangle_W, self.rectangle_H))
+        self.right = Squares(self.screen, 15, (255, 0, 0), 0.5, (self.W - 1.5 * self.rectangle_W, (self.H - self.rectangle_H) / 2, self.rectangle_W, self.rectangle_H))
         self.up.start()
         self.left.start()
         self.down.start()

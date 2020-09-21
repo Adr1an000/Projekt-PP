@@ -1,11 +1,10 @@
 import threading
 import time
-import datetime
 
 import pygame
 
 
-class Temp:
+class Squares:
     def __init__(self, screen, freq, color, filling, place):
         self.screen = screen
         self.freq = freq
@@ -26,10 +25,8 @@ class Temp:
             time.sleep(onTime)
             self.visable=False
             time.sleep(offTime)
-           # print("dupa")
 
     def draw(self):
         if self.visable:
             pygame.draw.rect(self.screen, self.color, self.place)
 
-        #print(self.visable)
