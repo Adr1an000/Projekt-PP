@@ -203,7 +203,7 @@ def save_model(model, path='saved_model/'):
 
 
 def load_model(path='saved_model/'):
-    return tf.keras.models.load_model(path + 'model1.h5')
+    return tf.keras.models.load_model(path + 'model7.h5')
 
 def equal_data(x_data, y_data):
 
@@ -233,14 +233,10 @@ def main():
 
     #x_data, y_data = sort_by_number(x_data, y_data)
 
-
-
-
-
     # Split data
-    x_train, y_train = x_data[: int(len(x_data) * 0.7)], y_data[: int(len(y_data) * 0.7)]
+    x_train, y_train = x_data[: int(len(x_data) * 0.8)], y_data[: int(len(y_data) * 0.8)]
 
-    x_valid, y_valid = x_data[int(len(x_data) * 0.7):], y_data[int(len(y_data) * 0.7):]
+    x_valid, y_valid = x_data[int(len(x_data) * 0.8):], y_data[int(len(y_data) * 0.8):]
     x_test, y_test = x_data[-10:], y_data[-10:]
 
     # Create, train and save NN model

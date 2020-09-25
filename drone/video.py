@@ -1,11 +1,11 @@
 import pygame
-from ardrone import drone
-
+#from ardrone import drone
+import ardrone
 from drone.squares import Squares
 
 
 class Video:
-    def __init__(self, screen = pygame.display.set_mode((640, 360)) ):
+    def __init__(self, screen = pygame.display.set_mode((640, 360)), drone = ardrone.ARDrone ):
         self.f = pygame.font.Font(None, 20)
         self.W_drone, self.H_drone = 640, 360
         self.W, self.H = pygame.display.get_surface().get_size()
@@ -23,26 +23,28 @@ class Video:
         self.left.start()
         self.down.start()
         self.right.start()
-        self.direction =0
+        self.direction = 0
+        self.drone = drone
 
 
     def video(self):
 
         try:
             self.screen.fill((0, 0, 0))
-            im = drone.image
+            im = self.drone.image
             surface = pygame.image.fromstring(im.tobytes(), im.size, im.mode)
-            self.screen.blit(surface, (self.begin_screen_H, self.begin_screen_W))
+            self.screen.blit(surface, (self.begin_screen_W, self.begin_screen_H))
             # battery status
-            hud_color = (255, 0, 0) if drone.navdata.get('drone_state', dict()).get('emergency_mask', 1) else (
-            10, 10, 255)
-            bat = drone.navdata.get('demo', dict()).get('battery', 0)
-            alt = drone.navdata.get('demo', dict()).get('altitude', 1) * 1000
+            hud_color = (255, 0, 0) if self.drone.navdata.get('drone_state', dict()).get('emergency_mask', 1) \
+                else (10, 10, 255)
+            bat = self.drone.navdata.get('demo', dict()).get('battery', 0)
+            alt = self.drone.navdata.get('demo', dict()).get('altitude', 1) * 1000
             hud = self.f.render('Battery: %i%%' % bat, True, hud_color)
             self.screen.blit(hud, (10, 10))
             altitude = self.f.render('altitude: %5.3f' % alt, True, hud_color)
             self.screen.blit(altitude, (10, 30))
         except:
+            print('problems')
             pass
 
         self.up.draw()
